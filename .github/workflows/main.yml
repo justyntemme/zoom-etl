@@ -41,7 +41,10 @@ jobs:
       - name: "Lint with pyright"
         uses: jakebailey/pyright-action@v2.3.2
         with:
-          warnings: "false"
+          warnings: 'true'
+          lib: 'true'
+          ignore-external: 'true'
+
 
       - name: "Lint with black"
         run: black --check .
