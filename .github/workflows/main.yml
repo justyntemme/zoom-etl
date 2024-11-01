@@ -40,10 +40,8 @@ jobs:
       
       - name: "Lint with pyright"
         uses: jakebailey/pyright-action@v2.3.2
-        warnings:
-          description: 'Use exit code of 1 if warnings are reported.'
-          required: false
-          default: 'false'
+        with:
+          warnings: "false"
 
       - name: "Lint with black"
         run: black --check .
