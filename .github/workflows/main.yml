@@ -47,9 +47,9 @@ jobs:
 
 
       - name: "Lint with black"
-        run: black --check .
+        run: black --diff .
 
       - name: "Lint with ruff"
-        run: ruff check .
+        run: ruff analyze .
 
 
