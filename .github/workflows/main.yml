@@ -37,18 +37,18 @@ jobs:
           pip install black ruff
 
       - run: echo "$PWD/.venv/bin" >> $GITHUB_PATH
-      
+
+      - name: "Lint with black"
+        run: black --diff .
+
+      - name: "Lint with ruff"
+        run: ruff check -e
+
       - name: "Lint with pyright"
         uses: jakebailey/pyright-action@v2.3.2
         with:
           failOn: 'false'
           warnings: 'false'
 
-
-      - name: "Lint with black"
-        run: black --diff .
-
-      - name: "Lint with ruff"
-        run: ruff analyze .
 
 
