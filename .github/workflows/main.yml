@@ -47,7 +47,6 @@ jobs:
       - name: "Lint with pyright"
         uses: jakebailey/pyright-action@v2.3.2
         with:
-          failOn: 'false'
           warnings: 'false'
 
 
