@@ -33,6 +33,7 @@ jobs:
       - run: |
           python -m venv .venv
           source .venv/bin/activate
+          pip install -r requirements.txt
           pip install black ruff
 
       - run: echo "$PWD/.venv/bin" >> $GITHUB_PATH
