@@ -42,7 +42,7 @@ jobs:
         run: black --diff .
 
       - name: "Lint with ruff"
-        run: ruff analyze .     
+        run: ruff analyze     
 
       - name: "Lint with pyright"
         uses: jakebailey/pyright-action@v2.3.2
