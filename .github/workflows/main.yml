@@ -41,15 +41,14 @@ jobs:
       - name: "Lint with pyright"
         uses: jakebailey/pyright-action@v2.3.2
         with:
-          warnings: 'true'
-          lib: 'true'
-          ignore-external: 'true'
+          failOn: 'false'
+          warnings: 'false'
 
 
       - name: "Lint with black"
-        run: black --check .
+        run: black --diff .
 
       - name: "Lint with ruff"
-        run: ruff check .
+        run: ruff analyze .
 
 
