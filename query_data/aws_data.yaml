@@ -1,0 +1,21 @@
+config:
+  queries:
+    - name: 'AWS MFA is not enabled on Root account'
+      query: "config from cloud.resource where cloud.type = 'aws' AND api.name = 'aws-iam-get-credential-report' AND json.rule = user equals \"<root_account>\" AND arn does not contain \"gov:\" addColumn mfa_active"
+  compared_queries:
+    - name: "AWS Default Security Group does not restrict all traffic"
+      queries: 
+        - "config from cloud.resource where cloud.type = 'aws'  AND api.name = 'aws-ec2-describe-security-groups' AND json.rule = '((groupName == default) and (ipPermissions[*] is not empty or ipPermissionsEgress[*] is not empty))'" 
+        - "config from cloud.resource where cloud.type = 'aws'  AND api.name = 'aws-ec2-describe-security-groups'"
+    - name: "AWS EC2 instance not configured with Instance Metadata Service v2 (IMDSv2)"
+      queries: 
+        - "config from cloud.resource where cloud.type = 'aws' AND api.name = 'aws-ec2-describe-instances' AND json.rule = state contains running and metadataOptions.httpEndpoint equals enabled and metadataOptions.httpTokens does not contain required"
+        - "config from cloud.resource where cloud.type = 'aws' AND api.name = 'aws-ec2-describe-instances' AND json.rule = state contains running"
+    - name: "AWS MFA not enabled for IAM users"
+      queries:
+        - "config from cloud.resource where cloud.type = 'aws' and api.name='aws-iam-get-credential-report' AND json.rule='password_enabled equals true and mfa_active is false'"
+        - "config from cloud.resource where cloud.type = 'aws' and api.name='aws-iam-get-credential-report' AND json.rule='password_enabled equals true and mfa_active is true'"
+    - name: "Wide Open Security Group Ingress allowed from All IP"
+      queries: 
+        - "config from cloud.resource where cloud.type = 'aws' AND api.name = 'aws-ec2-describe-security-groups' AND json.rule = ipPermissions[].ipv4Ranges[].cidrIp contains \"0.0.0.0/0\""
+        - "config from cloud.resource where cloud.type = 'aws' AND api.name = 'aws-ec2-describe-security-groups' AND json.rule = ipPermissions[].ipv4Ranges[].cidrIp does not contain \"0.0.0.0/0\""

@@ -1,0 +1,4 @@
+config:
+  queries:
+    - name: 'Azure query'
+      query: "config from cloud.resource where cloud.type = 'azure' and azure.resource.group matches 'jadempsey'"
