@@ -1,7 +1,7 @@
 import argparse
 import logging
-import api as api
 import datetime as dt
+import src.api as api
 import src.yaml as yaml
 
 SLEEP_AMOUNT=5
