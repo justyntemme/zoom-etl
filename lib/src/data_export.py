@@ -1,10 +1,9 @@
 import pandas as pd
 import calendar
 import logging as Logger
-import src.prisma_cloud_api as pcapi
+from . import prisma_cloud_api as pcapi
 
 def query_data_to_dataframe(logger: Logger, query: dict, start_date = None, end_date = None) -> pd.DataFrame:
-#def prisma_get_rql_query_to_dataframe(query,startdate,end_date):
     data_frame = pd.DataFrame()
     time_range = {}
 
@@ -27,11 +26,8 @@ def query_data_to_dataframe(logger: Logger, query: dict, start_date = None, end_
             data_frame = pd.concat([data_frame, temp_frame])
 
     if start_date and end_date:
-        data_frame['startDate'] = start_date #polars.to_datetime(data_frame['insertTs'] , unit='ms')
-        data_frame['endDate'] = end_date #polars.to_datetime(data_frame['createdTs'] , unit='ms')
-    #pl.select('insertTs') = 
-    #data_frame.select('insertTs') = pl.datetime(data_frame['insertTs'] , unit='ms')
-    #data_frame.select('createdTs') = pl.datetime(data_frame['createdTs'] , unit='ms')
+        data_frame['startDate'] = start_date
+        data_frame['endDate'] = end_date
     data_frame['insertTs'] = pd.to_datetime(data_frame['insertTs'] , unit='ms')
     data_frame['createdTs'] = pd.to_datetime(data_frame['createdTs'] , unit='ms')
 
