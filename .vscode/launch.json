@@ -8,14 +8,37 @@
             "name": "Python Debugger: Current File with Arguments",
             "type": "debugpy",
             "request": "launch",
+            "module": "lib.tools.write_data_sql",
+            "console": "integratedTerminal",
+        },
+        {
+            "name": "Python Debug: main.py",
+            "type": "debugpy",
+            "request": "launch",
             "program": "main.py", //"${file}",
             "console": "integratedTerminal",
             "args": [
                 //"./query_data"
+                //"-i",
+                //"-t",
                 "-d",
-                "./query_data/azure_data.yaml"
+                //"-f",
+                "./query_data/azure_data.yaml",
                 //"-f ./query_data/aws_data.yaml, ./query_data/azure_data.yaml"
                 //"${command:pickArgs}"
+            ]
+        },
+        {
+            "name": "Fake Data Generator",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "lib/tools/fake_data_generator.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-r",
+                "50000",
+                "-o",
+                "lib/tools/data.csv"
             ]
         }
     ]

@@ -3,7 +3,9 @@ import pymysql
 import sqlalchemy
 import os
 import json
-from pymysql import Connection
+#from pymysql import Connection
+import pymysql
+#from pymysql import cursors
 from logging import Logger
 
 AWS_DB_NAME = os.getenv("AWS_DB_NAME")
@@ -15,7 +17,7 @@ AWS_DATABASE_PASSWORD = os.getenv('password')
 AWS_DB_PORT =  os.getenv('port')
 AWS_DATABASE = os.getenv('host')
 
-def mysql_connection(logging: Logger) -> Connection[pymysql.Cursor]:
+def connect(logging: Logger):# -> pymysql.Connection[pymysql.Cursor]:
     try:
         cnx = pymysql.connect(host=AWS_DATABASE, user=AWS_DB_USER, port=int(AWS_DB_PORT), passwd=AWS_DATABASE_PASSWORD, db=AWS_DB_NAME)
     except Exception  as err:
@@ -24,13 +26,45 @@ def mysql_connection(logging: Logger) -> Connection[pymysql.Cursor]:
     else:
         return cnx
 
-def test_zoom_tables(logging: Logger) -> None:
+def initialize_zoom_tables(logging: Logger):
+    """ Create tables in the database"""
+    command = """
+        CREATE TABLE kri_data (
+            id_serial SERIAL PRIMARY KEY,
+            rrn TEXT,
+            stateId TEXT,
+            assetId TEXT,
+            id TEXT,
+            name TEXT,
+            accountId TEXT,
+            accountName TEXT,
+            cloudType TEXT,
+            regionId TEXT,
+            regionName TEXT,
+            service TEXT,
+            resourceType TEXT,
+            Passed TEXT,
+            startDate TIMESTAMP,
+            endDate TIMESTAMP,
+            sheet_name TEXT
+        )
+        """
+        
+    try:
+        conn = connect(logging)
+        cur = conn.cursor()
+        cur.execute(command)
+    except Exception as e:
+        logging.error("Database connection failed due to {}".format(e))
+
+
+def test_zoom_tables(logging: Logger):
     """ Create tables in the database"""
     command = """
         SELECT * from kri_data LIMIT 10;
         """
     try:
-        conn = mysql_connection(logging)
+        conn = connect(logging)
         cur = conn.cursor()
         cur.execute(command)
         body = cur.fetchall()
@@ -40,7 +74,7 @@ def test_zoom_tables(logging: Logger) -> None:
 
 def run_sql_command(logging: Logger, command):
     try:
-        conn = mysql_connection(logging)
+        conn = connect(logging)
 
         cur = conn.cursor()
         logging.info(command)
@@ -50,7 +84,7 @@ def run_sql_command(logging: Logger, command):
 
 def sqlalchemy_conn():
     ssl_args = {"ssl_ca": './global-bundle.pem'}
-    url = sqlalchemy.engine.URL('mysql+pymysql', AWS_DB_USER, AWS_DATABASE_PASSWORD, AWS_DATABASE, 3306, AWS_DB_NAME, {'charset': 'utf8mb4'})
+    url = sqlalchemy.engine.URL('mysql+pymysql', AWS_DB_USER, AWS_DATABASE_PASSWORD, AWS_DATABASE, int(AWS_DB_PORT), AWS_DB_NAME, {'charset': 'utf8mb4'})
     engine = sqlalchemy.create_engine(url, connect_args=ssl_args)
     return engine
 

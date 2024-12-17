@@ -1,8 +1,9 @@
 import argparse
 import logging
 import datetime as dt
-import src.api as api
-import src.yaml as yaml
+import lib.src.db as db
+import lib.src.api as api
+import lib.src.yaml as yaml
 
 SLEEP_AMOUNT=5
 
@@ -59,12 +60,12 @@ def main(event="", context=""):
 
         print(data_frame)
         data_frame.to_csv("frame_dump.csv")
-#    elif args.initialize:
-#        initialize_zoom_tables()
-#    elif args.execute is not None:
- #       run_sql_command(args.execute)
- #   elif args.test:
- #       test_zoom_tables()
+    elif args.initialize:
+        db.initialize_zoom_tables(logger)
+    #elif args.execute is not None:
+        #db.run_sql_command(logger, args.execute)
+    elif args.test:
+        db.test_zoom_tables(logger)
 
     end_time = dt.datetime.now()
 
