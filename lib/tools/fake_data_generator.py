@@ -17,7 +17,7 @@ num_rows = 50
 # num_rows = 100
 
 # Define the CSV file name
-file_output = "tools/data.csv"
+file_output = "lib/tools/data.csv"
 
 # Define the headers
 headers = [
