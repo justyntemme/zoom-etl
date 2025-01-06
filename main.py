@@ -14,7 +14,7 @@ def generate_kri_data_file(config, date,end_date):
         df['sheet_name']=key
         dataFrame = pd.concat([dataFrame, df.loc[:, ['rrn', 'stateId', 'assetId', 'id', 'name', 'accountId', 'accountName',
                                                         'cloudType', 'regionId', 'regionName', 'service', 'resourceType',
-                                                        'Passed', 'startDate', 'endDate', 'sheet_name']]])
+                                                        'Passed', 'startDate', 'endDate', 'sheet_name', 'accountGroup']]])
     
 
     compared_queries=config['compared_queries']
@@ -24,7 +24,7 @@ def generate_kri_data_file(config, date,end_date):
         df['sheet_name']=key
         dataFrame = pd.concat([dataFrame, df.loc[:, ['rrn', 'stateId', 'assetId', 'id', 'name', 'accountId', 'accountName',
                                                         'cloudType', 'regionId', 'regionName', 'service', 'resourceType',
-                                                        'Passed', 'startDate', 'endDate', 'sheet_name']]])
+                                                        'Passed', 'startDate', 'endDate', 'sheet_name', 'accountGroup']]])
 
 
     dataFrame.reset_index(drop=True, inplace=True)
@@ -87,17 +87,10 @@ def main(event="", context=""):
     elif args.test:
         test_zoom_tables()
 
-
-
     end_time = dt.datetime.now()
-
     time_diff = end_time - start_time
 
-
-
     logger.info(f"Script finished, total time taken: {time_diff}")
-
-
 
     return
 
