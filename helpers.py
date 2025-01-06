@@ -32,15 +32,12 @@ SECRET_KEY_NAME = os.getenv("PRISMA_SECRET_KEY")
 AWS_BUCKET=os.getenv("AWS_BUCKET")
 AWS_REGION= os.getenv("AWS_REGION")
 
-
 AWS_DB_NAME = os.getenv("AWS_DB_NAME")
 AWS_DB_SECRET_KEY = os.getenv("AWS_DB_SECRET_KEY")
 
 PRISMA_KEY= os.getenv("PRISMA_KEY")
 
 SLEEP_AMOUNT=5
-
-
 
 def get_aws_secret(secret_name):
     session = boto3.session.Session()
@@ -59,7 +56,6 @@ def get_aws_secret(secret_name):
     secret = get_secret_value_response['SecretString']
 
     return secret
-
 
 PRISMA_API_KEY = json.loads(get_aws_secret(PRISMA_KEY))
 ACCESS_KEY = PRISMA_API_KEY['AccessKey']
@@ -103,10 +99,10 @@ def initialize_zoom_tables():
             Passed TEXT,
             startDate TIMESTAMP,
             endDate TIMESTAMP,
-            sheet_name TEXT
+            sheet_name TEXT,
+            accountGroup TEXT
         )
         """
-        
 
     try:
         conn = mysql_connection()
@@ -114,7 +110,6 @@ def initialize_zoom_tables():
         cur.execute(command)
     except Exception as e:
         logging.error("Database connection failed due to {}".format(e))
-
 
 def test_zoom_tables():
     """ Create tables in the database"""
@@ -163,7 +158,6 @@ def write_buffer_to_s3(key,buffer):
     s3 = boto3.resource('s3')
     s3.Object(AWS_BUCKET,key).put(Body=buffer.getvalue())
 
-
 def generate_prisma_token(access_key: str, secret_key: str, cspm_endpoint: str) -> str:
     endpoint = f"https://{cspm_endpoint}/login"
 
@@ -182,8 +176,26 @@ def generate_prisma_token(access_key: str, secret_key: str, cspm_endpoint: str) 
 
     return data["token"]
 
+def fetch_account_group_data(token: str, cspm_endpoint: str) -> list:
+    endpoint = f"https://{cspm_endpoint}/cloud/group/api/v1/account-group"
 
+    logger.info("Fetching account group data using endpoint")
 
+    headers = {
+        "accept": "application/json; charset=UTF-8",
+        "content-type": "application/json; charset=UTF-8",
+        "x-redlock-auth": token,
+    }
+
+    response = requests.get(endpoint, headers=headers)
+
+    if response.status_code == 200:
+        data = json.loads(response.text)
+
+        return data
+    else:
+        logging.error(f"fetch_account_group_data returned status code: " + str(response.status_code))
+        return None
 
 def prisma_get_config_rql_search(token: str, cspm_endpoint: str, payload: dict) -> list:
     """
@@ -245,8 +257,6 @@ def prisma_get_config_rql_search(token: str, cspm_endpoint: str, payload: dict) 
     except Exception as e:
         logging.error(traceback.format_exc())
 
-
-
 def prisma_get_compared_rql_queries_dated(query1, query2, date, end_date):
         today = datetime.datetime.now()
         startdate = date
@@ -285,11 +295,6 @@ def prisma_get_compared_rql_queries_dated(query1, query2, date, end_date):
         dataFrame['insertTs'] = pd.to_datetime(dataFrame['insertTs'] , unit='ms')
         return dataFrame
 
-
-
-
-
-
 def prisma_extract_config_rql_search_timerange(query,timerange):
 
     payload= {
@@ -317,6 +322,7 @@ def prisma_extract_config_rql_search_timerange(query,timerange):
     rql_search_result=list()
     NEXT_PAGE = ""
     sleep_counter=0
+    ag = fetch_account_group_data(PRISMA_TOKEN, CSPM_ENDPOINT)
     while True:
         if NEXT_PAGE:
             payload.update({"nextPageToken": NEXT_PAGE})
@@ -337,6 +343,13 @@ def prisma_extract_config_rql_search_timerange(query,timerange):
                 break
         elif status_code == 200:
             for item in response["items"]:
+                for group in ag:
+                    if item['accountId'] in group['accountIds']:
+                        if 'accountGroup' not in item:
+                            item['accountGroup'] = []
+                            item['accountGroup'].append(group['name'])
+                        else:
+                            item['accountGroup'].append(group['name'])
                 rql_search_result.append(item)
 
             if "nextPageToken" in response:
@@ -400,6 +413,7 @@ def prisma_extract_config_rql_search(query):
     rql_search_result=list()
     NEXT_PAGE = ""
     sleep_counter=0
+    ag = fetch_account_group_data(PRISMA_TOKEN, CSPM_ENDPOINT)
     while True:
         if NEXT_PAGE:
             payload.update({"nextPageToken": NEXT_PAGE})
@@ -419,7 +433,15 @@ def prisma_extract_config_rql_search(query):
                 )
                 break
         elif status_code == 200:
+        
             for item in response["items"]:
+                for group in ag:
+                    if item['accountId'] in group['accountIds']:
+                        if 'accountGroup' not in item:
+                            item['accountGroup'] = []
+                            item['accountGroup'].append(group['name'])
+                        else:
+                            item['accountGroup'].append(group['name'])
                 rql_search_result.append(item)
 
             if "nextPageToken" in response:
@@ -451,7 +473,6 @@ def prisma_extract_config_rql_search(query):
                 f"API returned response: {status_code}..."
             )
     return rql_search_result
-
 
 def prisma_get_rql_query_to_dataframe(query,startdate,end_date):
         dataFrame=pd.DataFrame()
