@@ -38,7 +38,7 @@ class DBAccessor:
         self.ensure_connection()
 
         if self.connection is None:
-            self.logger.error("Failed to executre query: No database connection found")
+            self.logger.error("Failed to execute query: No database connection found")
             return None
 
         try:
