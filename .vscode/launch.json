@@ -8,6 +8,15 @@
             "name": "Python Debugger: Current File with Arguments",
             "type": "debugpy",
             "request": "launch",
+            "program": "${file}",
+            //"module": "lib.tools.write_data_sql",
+            "console": "integratedTerminal",
+        },
+        {
+            "name": "Python Debugger: Write Data to SQL",
+            "type": "debugpy",
+            "request": "launch",
+            //"program": "${file}",
             "module": "lib.tools.write_data_sql",
             "console": "integratedTerminal",
         },
@@ -39,6 +48,18 @@
                 "50000",
                 "-o",
                 "lib/tools/data.csv"
+            ]
+        },
+        {
+            "name": "SQL Tools",
+            "type": "debugpy",
+            "request": "launch",
+            //"program": "lib/tools/sql_tools.py",
+            "module": "lib.tools.sql_tools",
+            "console": "integratedTerminal",
+            "args": [
+                //"-i"
+                "-p"
             ]
         }
     ]
