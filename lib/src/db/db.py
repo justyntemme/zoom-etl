@@ -15,6 +15,11 @@ class DBAccessor:
         self.connection = None
         self.logger = logger
 
+    def ensure_connection(self):
+        if self.connection is None:
+            self.logger.info("No active connection found. Attempting to connect.")
+            self.connect()
+
     def connect(self):
         try:
             self.connection = pymysql.connect(
@@ -30,8 +35,11 @@ class DBAccessor:
             self.logger.info(f"Failed to connect to MySQL database: {e}")
 
     def execute_query(self, query, params=()):
-        if not self.connection:
-            self.connect()
+        self.ensure_connection()
+
+        if self.connection is None:
+            self.logger.error("Failed to executre query: No database connection found")
+            return None
 
         try:
             with self.connection.cursor() as cursor:
@@ -56,4 +64,8 @@ class DBAccessor:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        # For Linting 
+        _ = exc_type
+        _ = exc_val
+        _ = exc_tb
         self.close_connection()
